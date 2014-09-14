@@ -1167,13 +1167,126 @@ section {
   transition: opacity 450ms ease-out 0ms;
 }
 </style></head><body><section class="title"><h1>Going <em>farther</em> with <em>CDI</em> 1.2</h1><footer><span class="author">Antoine Sabot-Durand</span><span class="divider">&nbsp;&middot;&nbsp;</span><span class="author">Antonin Stefanutti</span></footer></section><section class="topic source"><h2>Antoine Sabot-Durand</h2><div class="exampleblock"><div class="content"><ul><li><span class="icon"><i class="fa fa-user"></i></span> Senior Software Engineer</li><li><span class="icon"><i class="fa fa-user"></i></span> CDI co-spec lead</li><li><span class="icon"><i class="fa fa-institution"></i></span> Red Hat, Inc.</li><li><span class="icon"><i class="fa fa-twitter"></i></span> @antoine_sd</li><li><span class="icon"><i class="fa fa-rss"></i></span> www.next-presso.com</li><li><span class="icon"><i class="fa fa-github"></i></span> github.com/antoinesd</li></ul></div></div></section>
-<section class="topic source"><h2>Antonin Stefanutti</h2><div class="exampleblock"><div class="content"><ul><li><span class="icon"><i class="fa fa-user"></i></span> Senior Software Engineer</li><li><span class="icon"><i class="fa fa-institution"></i></span> Murex, SAS</li><li><span class="icon"><i class="fa fa-twitter"></i></span> @astefanut</li><li><span class="icon"><i class="fa fa-github"></i></span> github.com/astefanutti</li></ul></div></div></section>
-<section class="topic source"><h2>Agenda</h2><div class="exampleblock"><div class="content"><ul><li><span class="icon"><i class="fa fa-info-circle"></i></span> Legacy code</li><li><span class="icon"><i class="fa fa-info-circle"></i></span> Camel instrumentation</li><li><span class="icon"><i class="fa fa-info-circle"></i></span> Metrics extension</li></ul></div></div></section>
-<section class="topic intro"><h2>Legacy code</h2><div class="exampleblock"><div class="content"><p>injection points, parameterized types, portable extension, programmatic bean</p></div></div></section>
+<section class="topic source"><h2>Antonin Stefanutti</h2><div class="exampleblock"><div class="content"><ul><li><span class="icon"><i class="fa fa-user"></i></span> Software Engineer</li><li><span class="icon"><i class="fa fa-institution"></i></span> Murex, SAS</li><li><span class="icon"><i class="fa fa-twitter"></i></span> @astefanut</li><li><span class="icon"><i class="fa fa-github"></i></span> github.com/astefanutti</li></ul></div></div></section>
+<section class="topic source"><h2>Agenda</h2><div class="exampleblock"><div class="content"><ul><li><span class="icon"><i class="fa fa-info-circle"></i></span> Legacy Code Integration</li><li><span class="icon"><i class="fa fa-info-circle"></i></span> Camel CDI Extension</li><li><span class="icon"><i class="fa fa-info-circle"></i></span> Metrics CDI Extension</li></ul></div></div></section>
+<section class="topic intro"><h2>Legacy code</h2><div class="exampleblock"><div class="content"><p>Injection points, parameterized types, programmatic bean</p></div></div></section>
 <section class="topic source"><h2>Diagram</h2></section>
-<section class="topic intro"><h2>Camel instrumentation</h2><div class="exampleblock"><div class="content"><p>Events, portable extension, transactional Observers</p></div></div></section>
-<section class="topic source"><h2>Camel routes AOP</h2></section>
-<section class="topic intro"><h2>Metrics Extension</h2><div class="exampleblock"><div class="content"><p>Annotated types, alternatives, interceptors, portable Extension, producers</p></div></div></section>
+<section class="topic intro"><h2>Camel CDI Extension</h2><div class="exampleblock"><div class="content"><p>Annotated types, events, injection Targets, transactional Observers</p></div></div></section>
+<section class="topic source"><h2>Apache Camel</h2><div class="admonitionblock note"><table><tr><td class="icon"><i class="fa icon-note" title="Note"></i></td><td class="content">Open-source <em>integration framework</em> based on known Enterprise Integration Patterns</td></tr></table></div>
+<div class="admonitionblock note"><table><tr><td class="icon"><i class="fa icon-note" title="Note"></i></td><td class="content"><em>Bean binding and integration</em> with Spring, Blueprint, Guice <em>and CDI</em></td></tr></table></div></section>
+<section class="topic source"><h2>Camel Annotations</h2><div class="listingblock"><pre class="highlight"><code class="java">@EndpointInject(uri="jms:queue:foo")
+Endpoint endpoint;
+
+@PropertyInject(value = "timeout", defaultValue = "5000")
+int timeout;
+
+@BeanInject("foo")
+FooBean foo;
+
+@Produce(uri = "mock:foo")
+ProducerTemplate producer;
+
+@Consume(uri="jms:queue:foo")
+void onFoo(@Body String body) {
+    ...
+}</code></pre></div></section>
+<section class="topic source"><h2>Type Discovery</h2><div class="listingblock"><div class="title"><code>AnnotatedType&lt;X&gt;</code></div><pre class="highlight"><code class="java">public interface AnnotatedType&lt;X&gt; extends Annotated {
+    public Class&lt;X&gt; getJavaClass();
+    public Set&lt;AnnotatedConstructor&lt;X&gt;&gt; getConstructors();
+    public Set&lt;AnnotatedMethod&lt;? super X&gt;&gt; getMethods();
+    public Set&lt;AnnotatedField&lt;? super X&gt;&gt; getFields();
+}</code></pre></div>
+<div class="listingblock"><div class="title"><code>ProcessAnnotatedType&lt;X&gt;</code></div><pre class="highlight"><code class="java">public interface ProcessAnnotatedType&lt;X&gt; {
+    public AnnotatedType&lt;X&gt; getAnnotatedType();
+    public void setAnnotatedType(AnnotatedType&lt;X&gt; type);
+    public void veto();
+}</code></pre></div></section>
+<section class="topic source"><h2>Injection Target</h2><div class="listingblock"><div class="title"><code>InjectionTarget&lt;T&gt;</code></div><pre class="highlight"><code class="java">public interface InjectionTarget&lt;T&gt; extends Producer&lt;T&gt; {
+    public void inject(T instance, CreationalContext&lt;T&gt; ctx);
+    public void postConstruct(T instance);
+    public void preDestroy(T instance);
+}</code></pre></div>
+<div class="listingblock"><div class="title"><code>ProcessInjectionTarget&lt;T&gt;</code></div><pre class="highlight"><code class="java">public interface ProcessInjectionTarget&lt;X&gt; {
+    public AnnotatedType&lt;X&gt; getAnnotatedType();
+    public InjectionTarget&lt;X&gt; getInjectionTarget();
+    public void setInjectionTarget(InjectionTarget&lt;X&gt; injectionTarget);
+    public void addDefinitionError(Throwable t);
+}</code></pre></div></section>
+<section class="topic source"><h2>Camel CDI Extension</h2><div class="listingblock"><pre class="highlight"><code class="java">class CdiCamelExtension implements Extension {
+    Set&lt;AnnotatedType&lt;?&gt;&gt; camelBeans = new HashSet&lt;&gt;());
+
+    void camelAnnotations(@Observes @WithAnnotations({BeanInject.class, <i class="conum" data-value="1"></i><b>(1)</b>
+        Consume.class, EndpointInject.class, Produce.class, PropertyInject.class})
+        ProcessAnnotatedType&lt;?&gt; pat) {
+        camelBeans.add(pat.getAnnotatedType());
+    }
+
+    &lt;T&gt; void camelBeansPostProcessor(@Observes ProcessInjectionTarget&lt;T&gt; pit) {
+        if (camelBeans.contains(pit.getAnnotatedType()))
+            pit.setInjectionTarget(
+                new CdiCamelInjectionTarget&lt;&gt;(pit.getInjectionTarget())); <i class="conum" data-value="2"></i><b>(2)</b>
+    }
+}</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Detect all the types containing Camel annotations with <code>@WithAnnotations</code></td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Decorate these types <code>InjectionTarget</code> with a custom post-processor</td></tr></table></div></section>
+<section class="topic source"><h2>Injection Target Decoration</h2><div class="listingblock"><pre class="highlight"><code class="java">class CdiCamelInjectionTarget&lt;T&gt; implements InjectionTarget&lt;T&gt; {
+    InjectionTarget&lt;T&gt; delegate;
+    DefaultCamelBeanPostProcessor processor;
+
+    CdiCamelInjectionTarget(InjectionTarget&lt;T&gt; target) {
+        delegate = target;
+        processor = new DefaultCamelBeanPostProcessor();
+    }
+
+    @Override
+    public void inject(T instance, CreationalContext&lt;T&gt; ctx) {
+        delegate.inject(instance, ctx);
+        processor.postProcessBeforeInitialization(instance); <i class="conum" data-value="1"></i><b>(1)</b>
+    }
+}</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Call the Camel default bean post-processor after CDI injection</td></tr></table></div></section>
+<section class="topic source"><h2>Camel DSL</h2><div class="listingblock"><pre class="highlight"><code class="java">from("jms:queue:{{input}}?transactionManager=#jtaTM")
+  .id("Input Consumer")
+  .onException().log("Rolling back message with ID ${header.JMSMessageID}")
+    .rollback().id("Rollback Transaction")
+    .end()
+  .log("Receiving message with ID ${header.JMSMessageID}: ${body}")
+  .choice()
+    .when(header("JMSRedelivered").isEqualTo(Boolean.TRUE))
+      .to("jms:queue:{{error}}?transactionManager=#jtaTM").id("Error Producer")
+    .otherwise()
+      .beanRef("transformer").id("Transformer")
+      .to("murex:trade-repository").id("Trade Repository")
+      .choice()
+        .when(not(isInserted))
+          .log("Error received: ${body}").id("Trade Repository Error")
+          .throwException(new CamelExecutionException("Import Failed")))
+        .otherwise()
+          .log("Answer received: ${body}").id("Trade Repository Answer");</code></pre></div></section>
+<section class="topic source"><h2>Camel AOP</h2><div class="admonitionblock tip"><table><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content">Camel DSL Aspect Oriented Programming with <em>CDI observer methods</em> as pointcut and advice definitions</td></tr></table></div>
+<div class="listingblock"><pre class="highlight"><code class="java">void interceptProcessor(@Observes @Before @Node("foo") Exchange exchange) {
+    // intercept the exchange before processor with id "foo"
+}</code></pre></div>
+<div class="listingblock"><pre class="highlight"><code class="java">void interceptProcessorBody(@Observes @Node("foo") @Body String body) {
+    // use Camel parameter binding annotations for the joint point context
+}</code></pre></div>
+<div class="listingblock"><pre class="highlight"><code class="java">void receive(@Observes(during=AFTER_SUCCESS) @Endpoint("bar") Exchange exchange) {
+    // exchange sent to endpoint "bar" when the transaction is committed successfully
+}</code></pre></div></section>
+<section class="topic source"><h2>Observer Method</h2><div class="listingblock"><div class="title"><code>ObserverMethod&lt;T&gt;</code></div><pre class="highlight"><code class="java">public interface ObserverMethod&lt;T&gt; {
+    public Class&lt;?&gt; getBeanClass();
+    public Type getObservedType();
+    public Set&lt;Annotation&gt; getObservedQualifiers();
+    public Reception getReception();
+    public TransactionPhase getTransactionPhase();
+    public void notify(T event);
+}</code></pre></div>
+<div class="listingblock"><div class="title"><code>ProcessObserverMethod&lt;T, X&gt;</code></div><pre class="highlight"><code class="java">public interface ProcessObserverMethod&lt;T, X&gt; {
+    public AnnotatedMethod&lt;X&gt; getAnnotatedMethod();
+    public ObserverMethod&lt;T&gt; getObserverMethod();
+    public void addDefinitionError(Throwable t);
+}</code></pre></div></section>
+<section class="topic source"><h2>Camel CDI Extension</h2><div class="listingblock"><pre class="highlight"><code class="java"></code></pre></div></section>
+<section class="topic intro"><h2>Metrics CDI Extension</h2><div class="exampleblock"><div class="content"><p>Annotated types, alternatives, interceptors, producers</p></div></div></section>
 <section class="topic source"><h2>Metrics extension example</h2><div class="listingblock"><pre class="highlight"><code class="java">@Inject
 private Meter hits; <i class="conum" data-value="1"></i><b>(1)</b>
 
@@ -1187,7 +1300,11 @@ private Gauge&lt;Double&gt; cacheHitRatioGauge(Meter hits, Timer calls) {
     return () -&gt; calls.getOneMinuteRate() == 0 ? Double.NaN :
                  hits.getOneMinuteRate() / calls.getOneMinuteRate();
 }</code></pre></div>
-<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td><code>Metric</code> <em>injection</em> from the registry.</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Method <em>instrumentation</em> with CDI interceptors.</td></tr><tr><td><i class="conum" data-value="3"></i><b>3</b></td><td>Produce a custom <code>Metric</code> instance by composing others.</td></tr></table></div></section>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td><code>Metric</code> <em>injection</em> from the registry</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Method <em>instrumentation</em> with CDI interceptors</td></tr><tr><td><i class="conum" data-value="3"></i><b>3</b></td><td>Produce a custom <code>Metric</code> instance by composing others</td></tr></table></div></section>
+<section class="topic source"><h2>References</h2><div class="admonitionblock note"><table><tr><td class="icon"><i class="fa icon-note" title="Note"></i></td><td class="content">Slides generated with <em>Asciidoctor</em> and <em>DZSlides</em> backend</td></tr></table></div>
+<div class="admonitionblock note"><table><tr><td class="icon"><i class="fa icon-note" title="Note"></i></td><td class="content">Original slide template - <em>Dan Allen</em> &amp; <em>Sarah White</em></td></tr></table></div>
+<div class="admonitionblock note"><table><tr><td class="icon"><i class="fa icon-note" title="Note"></i></td><td class="content">Camel CDI Extension - <a href="https://github.com/astefanutti/camel-cdi" class="bare">github.com/astefanutti/camel-cdi</a></td></tr></table></div>
+<div class="admonitionblock note"><table><tr><td class="icon"><i class="fa icon-note" title="Note"></i></td><td class="content">Metrics CDI Extension - <a href="https://github.com/astefanutti/metrics-cdi" class="bare">github.com/astefanutti/metrics-cdi</a></td></tr></table></div></section>
 <section class="topic ending"><h2 class="name">Antoine Sabot-Durand Antonin Stefanutti</h2><p class="footer"><span class="icon"><i class="fa fa-twitter"></i></span> @antoine_sd @astefanut</p></section><script>
 //   __  __  __       .  __   ___  __
 //  |  \  / /__` |    | |  \ |__  /__`
