@@ -27,35 +27,6 @@ Antoine Sabot-Durand; Antonin Stefanutti
 :hide-uri-scheme:
 :includegifs:
 
-
-[.topic.source]
-== Antonin Stefanutti
-
-====
-* icon:user[] Software Engineer
-* icon:institution[] Murex
-* icon:globe[] www.murex.com
-* icon:twitter[] @astefanut
-* icon:github[] github.com/astefanutti
-
-TIP: Slides available at https://github.com/astefanutti/further-cdi
-====
-
-
-[.topic.source]
-== CDI @ Murex
-
-image::murex.png[height="86%"]
-
-NOTE: CDI as the *productivity ecosystem* to build *connectivity interfaces*
-
-
-[.topic.source]
-== CDI @ Murex
-
-image::before-after.png[height="95%"]
-
-
 [.topic.source]
 == Antoine Sabot-Durand
 
@@ -68,6 +39,27 @@ image::before-after.png[height="95%"]
 * icon:github[] github.com/antoinesd
 ====
 
+////
+[.topic.source]
+== Antonin Stefanutti
+
+====
+* icon:user[] Software Engineer
+* icon:institution[] Murex
+* icon:globe[] www.murex.com
+* icon:twitter[] @astefanut
+* icon:github[] github.com/astefanutti
+====
+
+
+[.topic.source]
+== CDI @ Murex
+
+image::murex.png[height="86%"]
+
+NOTE: CDI as the *productivity ecosystem* to build *connectivity interfaces*
+
+////
 
 [.topic.source]
 == Should I stay or should I go?
@@ -98,7 +90,6 @@ TIP: If you know the most of these you can stay
 * `@Qualifier`
 * `InjectionPoint`
 
-
 [.topic.source]
 == More concretely
 
@@ -113,7 +104,6 @@ CAUTION: What's not included:
 . Introduction to CDI
 . Old content on extension
 . Work with Context (need 2 more hours)
-
 
 [.topic.source]
 == Tools used in the code 1/2
@@ -152,22 +142,19 @@ image::arquillian.png[role="pull-right", width="250"]
 . More info on http://arquillian.org
 ====
 
-
 [.topic.source]
 == Agenda
 
-[.recap]
+[.statement]
 ====
 * icon:info-circle[] Meet CDI SPI
 * icon:info-circle[] Introducing CDI Extensions
-// * icon:info-circle[] Legacy Code
-* icon:info-circle[] Metrics CDI
-* icon:info-circle[] CDI Quizz
-* icon:info-circle[] Camel CDI
+//* icon:info-circle[] Legacy Code
+* icon:info-circle[] A real use case: Metrics CDI
+//* icon:info-circle[] Camel CDI
 
 TIP: Slides available at http://astefanutti.github.io/further-cdi
 ====
-
 
 include::parts/spi.adoc[]
 
@@ -177,13 +164,17 @@ include::parts/extensions.adoc[]
 
 include::parts/metrics.adoc[]
 
-include::parts/quizz.adoc[]
-
-include::parts/camel.adoc[]
-
+//include::parts/camel.adoc[]
 
 [.topic.intro]
 == Conclusion
+
+
+[.topic.ending, hrole="name"]
+== Questions
+
+[.footer]
+icon:twitter[] @antoine_sd @cdi-spec
 
 
 [.topic.source]
@@ -201,12 +192,3 @@ NOTE: Slides generated with _Asciidoctor_, _PlantUML_ and _DZSlides_ backend
 
 NOTE: Original slide template - _Dan Allen_ & _Sarah White_
 
-
-[.topic.ending, hrole="name"]
-== Antoine Sabot-Durand Antonin Stefanutti
-
-[.footer]
-icon:twitter[] @antoine_sd @astefanut
-
-
-include::parts/lifecycle.adoc[]
