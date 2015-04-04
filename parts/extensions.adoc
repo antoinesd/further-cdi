@@ -166,9 +166,112 @@ NOTE: This is a commonly admitted good practice
 ----
 public class VetoEntity implements Extension {
 
-    void vetoEntity(@Observes @WithAnnotations(Entity.class)
-                    ProcessAnnotatedType<?> pat) {
-        pat.veto();
+  void noEntity(@Observes @WithAnnotations(Entity.class) ProcessAnnotatedType<?> p) {
+      p.veto();
+  }
+}
+----
+
+[.topic.source]
+== Example: Register a Bean from an annotation 1/4
+
+TIP: To integrate MongoDB with CDI we want to provide a way to write this:
+
+[source]
+----
+@MongoClientDefinition(name = "myMongo", url = "mongodb://localhost")
+public class AnyClass {
+}
+----
+TIP: and have the corresponding `Mongoclient` produced so we can inject it:
+
+[source]
+----
+public class MyService {
+  @Inject
+  MongoClient myclient;
+}
+----
+TIP: In the same spirit than `@DataSourceDefinition`
+
+[.topic.source]
+== Example: Register a Bean from an annotation 2/4
+
+TIP: Rather standard annotation code:
+
+[source]
+----
+@Target(value = {TYPE})
+@Retention(value = RUNTIME)
+@Documented
+public @interface MongoClientDefinition
+{
+  String name();
+  String description() default "";
+  String url() default "";
+}
+----
+
+[.topic.source]
+== Example: Register a Bean from an annotation 3/4
+
+[source.smallest]
+----
+public class MongoExtension implements Extension {
+  private MongoClientDefinition mongoDef = null;
+  void detectMongoClientDefinition(
+    @Observes @WithAnnotations(MongoClientDefinition.class) ProcessAnnotatedType<?> pat) {
+      AnnotatedType at = pat.getAnnotatedType();
+      mongoDef = at.getAnnotation(MongoClientDefinition.class);
+  }
+
+  void registerDataSourceBeans(@Observes AfterBeanDiscovery abd, BeanManager bm) {
+    MongoClientURI uri = new MongoClientURI(mongoDef.url());
+    abd.addBean(bm.createBean(new MongoClientBeanAttributes(bm.createBeanAttributes(bm.createAnnotatedType
+      (MongoClient.class))), MongoClient.class, new MongoClientProducerFactory(uri)));
+  }
+
+  private static class MongoClientBeanAttributes implements BeanAttributes<MongoClient> {
+    private BeanAttributes<MongoClient> delegate;
+    MongoClientBeanAttributes(BeanAttributes<MongoClient> beanAttributes) {
+      delegate = beanAttributes;
+    }
+    public Class<? extends Annotation> getScope() {
+      return ApplicationScoped.class;
+    }
+    //skiping delegating methods
+  }
+...
+----
+
+[.topic.source]
+== Example: Register a Bean from an annotation 4/4
+
+[source.smallest]
+----
+...
+  private static class MongoClientProducerFactory implements InjectionTargetFactory<MongoClient> {
+    MongoClientURI uri;
+    MongoClientProducerFactory(MongoClientURI uri) {
+      this.uri = uri;
+    }
+
+    public InjectionTarget<MongoClient> createInjectionTarget(Bean<MongoClient> bean) {
+      return new InjectionTarget<MongoClient>() {
+
+        public MongoClient produce(CreationalContext<MongoClient> ctx) {
+          try {
+            return new MongoClient(uri);
+            } catch (UnknownHostException e) {
+              throw new IllegalArgumentException(e);
+            }
+          }
+          public void dispose(MongoClient instance) {
+            instance.close();
+          }
+          // skipping empty methods
+        };
+      }
     }
 }
 ----
