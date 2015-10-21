@@ -27,6 +27,7 @@ Antoine Sabot-Durand; Antonin Stefanutti
 :hide-uri-scheme:
 :includegifs:
 
+////
 [.topic.source]
 == Antoine Sabot-Durand
 
@@ -39,7 +40,7 @@ Antoine Sabot-Durand; Antonin Stefanutti
 * icon:github[] github.com/antoinesd
 ====
 
-////
+
 [.topic.source]
 == Antonin Stefanutti
 
@@ -59,7 +60,6 @@ image::murex.png[height="86%"]
 
 NOTE: CDI as the *productivity ecosystem* to build *connectivity interfaces*
 
-////
 
 [.topic.source]
 == Should I stay or should I go?
@@ -104,6 +104,8 @@ CAUTION: What's not included:
 . Introduction to CDI
 . Old content on extension
 . Work with Context (need 2 more hours)
+
+////
 
 [.topic.source]
 == Tools used in the code 1/2

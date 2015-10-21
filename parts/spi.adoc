@@ -197,6 +197,7 @@ interface EventMetadata {
 @enduml
 ----
 
+////
 
 [.topic.source]
 == This SPI can be used in your code (1/2)
@@ -228,6 +229,7 @@ public @interface [HighLight]#HttpParam# {
 ----
 
 
+
 [.topic.source]
 == This SPI can be used in your code (2/2)
 
@@ -252,7 +254,7 @@ class MyMapProducer() {
 ----
 
 
-////
+
 [.topic.source]
 == This SPI can be used in your code (3/4)
 

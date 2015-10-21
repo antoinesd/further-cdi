@@ -162,7 +162,7 @@ TIP: The following extension prevents CDI to manage entities
 
 NOTE: This is a commonly admitted good practice
 
-[source]
+[source, role="smaller"]
 ----
 public class VetoEntity implements Extension {
 
@@ -171,6 +171,8 @@ public class VetoEntity implements Extension {
   }
 }
 ----
+
+////
 
 [.topic.source]
 == Example: Register a Bean from an annotation 1/4
@@ -276,6 +278,7 @@ public class MongoExtension implements Extension {
 }
 ----
 
+////
 
 [.topic.recap]
 == Remember
